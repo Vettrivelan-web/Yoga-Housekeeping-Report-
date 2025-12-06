@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BH-2 Attendance Dual Mode</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f8; margin: 0; padding: 15px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+        h2 { text-align: center; color: #222; margin-bottom: 5px; text-transform: uppercase; font-size: 18px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .sub-header { text-align: center; color: #555; font-weight: bold; margin-bottom: 20px; margin-top: 10px; }
+        
+        .sup-container { background: #eef; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ccd; }
+        .sup-container label { font-weight: bold; display: block; margin-bottom: 5px; color: #000; }
+        select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #999; font-size: 16px; }
+
+        /* Buttons */
+        .btn { padding: 12px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin: 5px 0; color: white; font-weight: bold; width: 100%; text-transform: uppercase; }
+        .btn-green { background: #28a745; }
+        .btn-dark { background: #343a40; } /* New Button Color */
+        .btn-whatsapp { background: #25D366; } 
+        .btn-blue { background: #007bff; }
+        .btn-red { background: #dc3545; }
+        .btn-orange { background: #6c757d; width: auto; float: right; font-size: 12px; padding: 5px 10px; } 
+        
+        .category-title { background: #444; color: #fff; padding: 10px; font-weight: bold; border-radius: 4px; margin-top: 25px; border-bottom: 3px solid #000; }
+        .worker-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        
+        .worker-item { background: #f9f9f9; padding: 8px; border-radius: 4px; border: 1px solid #ccc; display: flex; align-items: center; }
+        .worker-item input { transform: scale(1.3); margin-right: 10px; cursor: pointer; } 
+        .worker-item label { cursor: pointer; width: 100%; font-size: 14px; font-weight: 500; }
+
+        textarea { width: 100%; height: 500px; margin-top: 20px; padding: 10px; border: 1px solid #999; border-radius: 4px; font-family: monospace; white-space: pre; background: #fff; font-size: 14px; color: #000; }
+        
+        .hidden { display: none; }
+        .input-group { display: flex; gap: 5px; margin-top: 10px; margin-bottom: 10px; }
+        .input-group input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .edit-row { display: flex; justify-content: space-between; align-items: center; background: #fff; border-bottom: 1px solid #eee; padding: 8px 5px; }
+
+        @media (max-width: 400px) { .worker-list { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <button class="btn btn-orange" onclick="toggleMode()" id="modeBtn">Edit Names</button>
+    <h2>Daily H.K Attendance Report</h2>
+    <div class="sub-header">Place: BH-2</div>
+
+    <!-- ATTENDANCE MODE -->
+    <div id="attendanceView">
+        
+        <div class="sup-container">
+            <label>Select Prepared By (Supervisor):</label>
+            <select id="supervisorSelect"></select>
+        </div>
+
+        <p style="text-align:center; background:#eee; padding:8px; border-radius:4px; font-size:13px; border:1px solid #ccc; margin-top:0;">
+            Select <b>Absentees</b> (Tick marks)
+        </p>
+
+        <div id="attendanceListContainer"></div>
+
+        <div style="margin-top: 20px;">
+            <!-- Two Generate Buttons -->
+            <button class="btn btn-green" onclick="generateDetailedReport()">1. Generate Detailed Report (Full List)</button>
+            <button class="btn btn-dark" onclick="generateAbstractReport()">2. Generate Abstract (Counts Only)</button>
+            
+            <hr style="margin: 15px 0;">
+            
+            <button class="btn btn-whatsapp" onclick="shareToWhatsApp()" id="shareBtn" style="display:none;">Share on WhatsApp</button>
+            <button class="btn btn-blue" onclick="copyText()" id="copyBtn" style="display:none;">Copy Text</button>
+        </div>
+        
+        <div id="resultSection" style="display:none;">
+            <textarea id="output" readonly></textarea>
+        </div>
+    </div>
+
+    <!-- EDIT MODE -->
+    <div id="editView" class="hidden">
+        <h3 style="text-align:center; color:#333;">Manage Name List</h3>
+        <div style="text-align:center; margin-bottom:15px;">
+            <button class="btn btn-green" onclick="toggleMode()">Save & Go Back</button>
+            <button class="btn btn-red" onclick="resetToDefault()">Reset List</button>
+        </div>
+        <div id="editListContainer"></div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 1. DATA SETUP
+    // ==========================================
+    const defaultData = {
+        supervisors: ["M.Kirubakanni", "S.selvi"],
+        sweepers: [
+            "Akila", "Kannagi", "Durga", "Radha", "Selvi",
+            "Ponni", "Jaya", "V.Lakshmi", "Vali", "Malliga",
+            "virammal", "Esakki", "Sivakanni", "Vasanthi", "Shanthi"
+        ],
+        scavengers: [
+            "Kasturi", "Ponnammal", "Lakshmi.N", "Lakshmi",
+            "Sushila", "Chitra", "Muthulakshmi", "Rajakumari",
+            "Selvi", "Vasanthi.P", "Lakshmi.M", "Muniyammal",
+            "Mahalingam", "Malar", "Selvi.p", "Alamelu"
+        ]
+    };
+
+    // Config
+    const config = {
+        supervisors: { title: 'SUPERVISORS', label: 'Supervisor Details', totalStrength: 0, setVacant: false }, 
+        sweepers: { title: 'SWEEPERS', label: 'Sweeper Details', totalStrength: 30, setVacant: true },
+        scavengers: { title: 'SCAVENGERS', label: 'Scavenger Details', totalStrength: 24, setVacant: true }
+    };
+
+    // 2. LOAD DATA
+    let appData = JSON.parse(localStorage.getItem('attendanceList_BH2_v6')) || JSON.parse(JSON.stringify(defaultData));
+
+    function saveData() {
+        localStorage.setItem('attendanceList_BH2_v6', JSON.stringify(appData));
+        renderAttendance();
+        renderEdit();
+        loadSupervisors();
+    }
+
+    function resetToDefault() {
+        if(confirm("Are you sure you want to reset the list?")) {
+            appData = JSON.parse(JSON.stringify(defaultData));
+            saveData();
+        }
+    }
+
+    // 3. RENDER FUNCTIONS
+    function loadSupervisors() {
+        const select = document.getElementById('supervisorSelect');
+        const currentVal = select.value;
+        select.innerHTML = '';
+        appData.supervisors.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.text = name;
+            select.appendChild(option);
+        });
+        if(currentVal) select.value = currentVal;
+    }
+
+    function renderAttendance() {
+        const container = document.getElementById('attendanceListContainer');
+        container.innerHTML = '';
+        renderCategory(container, 'supervisors', config.supervisors.title);
+        renderCategory(container, 'sweepers', config.sweepers.title);
+        renderCategory(container, 'scavengers', config.scavengers.title);
+    }
+
+    function renderCategory(container, key, title) {
+        if(appData[key].length > 0) {
+            let html = `<div class="category-title">${title}</div><div class="worker-list">`;
+            appData[key].forEach((name, index) => {
+                html += `
+                    <div class="worker-item">
+                        <input type="checkbox" id="${key}-${index}" class="absent-check">
+                        <label for="${key}-${index}">${index + 1}. ${name}</label>
+                    </div>`;
+            });
+            html += `</div>`;
+            container.innerHTML += html;
+        }
+    }
+
+    function renderEdit() {
+        const container = document.getElementById('editListContainer');
+        container.innerHTML = '';
+        renderEditCategory(container, 'supervisors', 'SUPERVISORS');
+        renderEditCategory(container, 'sweepers', 'SWEEPERS');
+        renderEditCategory(container, 'scavengers', 'SCAVENGERS');
+    }
+
+    function renderEditCategory(container, key, title) {
+        let html = `<div class="category-title" style="background:#6c757d;">${title}</div>`;
+        html += `
+            <div class="input-group">
+                <input type="text" id="new-${key}" placeholder="Add name here...">
+                <button class="btn btn-blue" onclick="addName('${key}')">Add</button>
+            </div>
+            <div style="background:#f8f9fa; padding:5px; border-radius:5px;">`;
+        appData[key].forEach((name, index) => {
+            html += `
+                <div class="edit-row">
+                    <span>${index+1}. ${name}</span>
+                    <button class="btn btn-red" style="padding:5px 10px; font-size:12px;" onclick="deleteName('${key}', ${index})">Delete</button>
+                </div>`;
+        });
+        html += `</div>`;
+        container.innerHTML += html;
+    }
+
+    // 4. LOGIC
+    function addName(key) {
+        const input = document.getElementById(`new-${key}`);
+        if (input.value.trim()) {
+            appData[key].push(input.value.trim());
+            input.value = '';
+            saveData();
+        }
+    }
+
+    function deleteName(key, index) {
+        if(confirm("Delete this name?")) {
+            appData[key].splice(index, 1);
+            saveData();
+        }
+    }
+
+    function toggleMode() {
+        const attView = document.getElementById('attendanceView');
+        const editView = document.getElementById('editView');
+        const btn = document.getElementById('modeBtn');
+        if (attView.style.display === 'none') {
+            attView.style.display = 'block';
+            editView.classList.add('hidden');
+            btn.innerText = 'Edit Names';
+            renderAttendance(); 
+            loadSupervisors();
+        } else {
+            attView.style.display = 'none';
+            editView.classList.remove('hidden');
+            btn.innerText = 'Back';
+            renderEdit();
+        }
+    }
+
+    // Helper to pad zero (e.g. 4 -> 04)
+    function pad(num) {
+        return num.toString().padStart(2, '0');
+    }
+
+    // ==========================================
+    // 5. REPORT GENERATION LOGIC
+    // ==========================================
+
+    // --- REPORT TYPE 1: DETAILED (Full Names) ---
+    function generateDetailedReport() {
+        const today = new Date().toLocaleDateString('en-GB');
+        const selectedSup = document.getElementById('supervisorSelect').value;
+        
+        let text = `Daily H.K Attendance report\nPlace: BH-2\nDate: ${today}\n==========================\n`;
+
+        function processSection(key, conf) {
+            let absentList = [];
+            let presentList = [];
+            
+            appData[key].forEach((name, index) => {
+                const checkbox = document.getElementById(`${key}-${index}`);
+                if (checkbox && checkbox.checked) {
+                    absentList.push(name);
+                } else {
+                    presentList.push(name);
+                }
+            });
+
+            text += `\n${conf.title}\n`;
+            if (conf.setVacant) text += `Total Strength: ${conf.totalStrength}\n`;
+
+            text += `Present: ${presentList.length}\n`;
+            if (presentList.length > 0) {
+                presentList.forEach((name, idx) => text += `${idx + 1}. ${name}\n`);
+            } else {
+                text += `(Nil)\n`;
+            }
+
+            text += `Absent: ${absentList.length}\n`;
+            if (absentList.length > 0) {
+                absentList.forEach((name, idx) => text += `${idx + 1}. ${name}\n`);
+            } else {
+                text += `(Nil)\n`;
+            }
+
+            if (conf.setVacant) {
+                const currentListSize = appData[key].length;
+                const vacentCount = conf.totalStrength - currentListSize;
+                text += `Vacant: ${vacentCount}\n`;
+            }
+            text += `--------------------------\n`;
+        }
+
+        processSection('supervisors', config.supervisors);
+        processSection('sweepers', config.sweepers);
+        processSection('scavengers', config.scavengers);
+
+        text += `\nPrepared by\n${selectedSup}`;
+        displayOutput(text);
+    }
+
+    // --- REPORT TYPE 2: ABSTRACT (Counts Only) ---
+    function generateAbstractReport() {
+        const today = new Date().toLocaleDateString('en-GB');
+        const selectedSup = document.getElementById('supervisorSelect').value;
+        
+        let text = `Daily H.K Attendance Abstract\nPlace: BH-2\nDate: ${today}\n\n`;
+
+        function processAbstract(key, conf) {
+            let absentCount = 0;
+            
+            appData[key].forEach((name, index) => {
+                const checkbox = document.getElementById(`${key}-${index}`);
+                if (checkbox && checkbox.checked) {
+                    absentCount++;
+                }
+            });
+
+            const totalInList = appData[key].length;
+            const presentCount = totalInList - absentCount;
+            
+            // For Supervisors, we just show present/absent
+            if (!conf.setVacant) {
+                text += `${conf.label}:\n`;
+                text += `Present: ${pad(presentCount)}\n`;
+                text += `Absent:  ${pad(absentCount)}\n\n`;
+            } else {
+                // For Sweepers & Scavengers
+                const vacentCount = conf.totalStrength - totalInList;
+                
+                text += `${conf.label}:\n`;
+                text += `Total Strength: ${conf.totalStrength}\n`;
+                text += `Present: ${pad(presentCount)}\n`;
+                text += `Absent:  ${pad(absentCount)}\n`;
+                text += `Vacant:  ${pad(vacentCount)}\n\n`;
+            }
+        }
+
+        processAbstract('supervisors', config.supervisors);
+        processAbstract('sweepers', config.sweepers);
+        processAbstract('scavengers', config.scavengers);
+
+        text += `Prepared by\n${selectedSup}`;
+        displayOutput(text);
+    }
+
+    // --- DISPLAY & SHARE ---
+    function displayOutput(text) {
+        document.getElementById('resultSection').style.display = 'block';
+        const output = document.getElementById('output');
+        output.value = text;
+        output.scrollIntoView();
+        
+        document.getElementById('shareBtn').style.display = 'inline-block';
+        document.getElementById('copyBtn').style.display = 'inline-block';
+    }
+
+    function shareToWhatsApp() {
+        const output = document.getElementById('output').value;
+        if(!output) { alert("Generate report first!"); return; }
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(output)}`;
+        window.open(url, '_blank');
+    }
+
+    function copyText() {
+        const output = document.getElementById('output');
+        output.select();
+        output.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(output.value);
+        alert("Text Copied!");
+    }
+
+    loadSupervisors();
+    renderAttendance();
+
+</script>
+
+</body>
+</html>
