@@ -3,254 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Report V3.7 - S.No Integration</title>
+    <title>Attendance Report Pro V8.0</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #e9ecef; margin: 0; padding: 15px; }
-        .container { max-width: 650px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .location-box { background: #007bff; padding: 10px; border-radius: 6px; margin-bottom: 15px; color: white; text-align: center; }
-        .location-box select { padding: 8px; border-radius: 4px; font-size: 16px; font-weight: bold; width: 150px; }
-        h2 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-top: 0; }
-        .sub-header { text-align: center; color: #d63384; font-weight: bold; margin-bottom: 10px; font-size: 18px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; color: #333; }
+        .top-bar { background: #3b5998; color: white; padding: 15px; font-size: 20px; font-weight: bold; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .main-card { max-width: 500px; margin: 20px auto; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .place-container { background: #007bff; padding: 15px; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: white; margin-bottom: 20px; }
+        .place-container select { padding: 8px 15px; border-radius: 6px; border: none; font-size: 18px; font-weight: bold; background: white; margin-left: 10px; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
+        .header-row h2 { margin: 0; font-size: 20px; color: #222; }
+        .btn-manage { background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .pink-header { text-align: center; color: #d63384; font-size: 20px; font-weight: bold; margin: 15px 0; }
+        .mode-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; opacity: 0.6; }
+        .mode-btn.active { opacity: 1; border: 2px solid #333; }
+        .btn-absent { background: #007bff; }
+        .btn-kovil { background: #f08080; }
         
-        .btn { padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin: 5px 0; color: white; font-weight: bold; width: 100%; text-transform: uppercase; }
-        .btn-orange { background: #fd7e14; width: auto; float: right; font-size: 11px; padding: 5px 10px; }
-        .btn-gen { background: #28a745; margin-top: 20px; font-size: 16px; }
-        .btn-whatsapp { background: #25D366; width: 48%; }
-        .btn-copy { background: #007bff; width: 48%; }
-        .btn-red { background: #dc3545; }
+        .category-bar { background: #444; color: white; padding: 10px 15px; font-weight: bold; border-radius: 6px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .category-bar .str-count { font-size: 12px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; }
 
-        .sup-box { background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; }
-        .sup-box select { width: 100%; padding: 8px; border-radius: 4px; }
-
-        .category-title { background: #444; color: #fff; padding: 10px; font-weight: bold; border-radius: 4px; margin-top: 20px; display: flex; justify-content: space-between; }
-        .worker-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .worker-item { background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #ccc; display: flex; align-items: center; cursor: pointer; font-size: 13px; min-height: 40px; }
-        .worker-item.is-absent { background-color: #ffeaea; border: 1px solid #dc3545; color: #dc3545; font-weight: bold; }
-        .worker-item input { margin-right: 8px; pointer-events: none; }
-        .sno-badge { font-weight: bold; color: #666; margin-right: 5px; min-width: 20px; display: inline-block; }
-
-        .report-section { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 20px; }
-        .report-title { font-weight: bold; color: #333; margin-bottom: 10px; display: block; border-left: 4px solid #28a745; padding-left: 10px; text-transform: uppercase; font-size: 12px; }
-        textarea { width: 100%; height: 180px; margin: 10px 0; padding: 10px; font-family: 'Courier New', Courier, monospace; border: 1px solid #ccc; font-size: 13px; box-sizing: border-box; white-space: pre-wrap; }
-        .button-row { display: flex; justify-content: space-between; }
+        .worker-item { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-top: 8px; display: flex; align-items: center; cursor: pointer; background: #fff; }
+        .worker-item.is-kovil { background: #ffeaea; border-color: #f08080; color: #dc3545; font-weight: bold; }
+        .worker-item input[type="checkbox"] { width: 18px; height: 18px; margin-right: 15px; cursor: pointer; }
         
+        .report-selection { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd; }
+        .btn-action { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; text-transform: uppercase; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-whatsapp { background: #25D366; color: white; }
+        .btn-blue { background: #007bff; color: white; }
+        
+        textarea { width: 100%; height: 450px; margin-top: 15px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: 'Courier New', monospace; font-size: 13px; white-space: pre; }
         .hidden { display: none; }
-        .edit-row { display: flex; justify-content: space-between; align-items: center; background: #fff; border-bottom: 1px solid #eee; padding: 10px; }
+        .edit-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        
+        /* Strength Input in Edit Mode */
+        .strength-edit-box { background: #e9ecef; padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: bold; }
+        .strength-edit-box input { width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+
+        .add-box { display: flex; gap: 5px; margin-bottom: 10px; }
+        .add-box input { flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="location-box">
+<div class="top-bar" id="topBarTitle">BH-2 H.K report</div>
+
+<div class="main-card">
+    <div class="place-container">
         <label>Place:</label>
         <select id="locationSelect" onchange="switchLocation()">
-            <option value="BH2">BH-2</option>
-            <option value="OMV">Omv Hostel</option>
-            <option value="GH">Girls Hostel</option>
+            <option value="GH">GH</option>
+            <option value="BH2" selected>BH-2</option>
+            <option value="OMV">OMV</option>
         </select>
     </div>
 
-    <button class="btn btn-orange" onclick="toggleEditView()" id="editToggleBtn">Manage Names</button>
-    <h2>Attendance</h2>
-    <div class="sub-header" id="placeHeader">Boys hostel-II</div>
-
     <div id="attendanceView">
-        <div class="sup-box">
-            <label>Supervisor (Prepared by):</label>
-            <select id="supervisorSelect"></select>
+        <div class="header-row">
+            <h2>Attendance Report</h2>
+            <button class="btn-manage" onclick="toggleEditView()">Manage Names</button>
+        </div>
+        <div class="pink-header" id="placeHeader">BH-2</div>
+        
+        <div style="margin-bottom:15px;">
+            <label>Supervisor:</label>
+            <select id="supervisorSelect" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc; font-weight:bold;"></select>
         </div>
 
-        <div style="text-align: center; color: #666; font-size: 11px; font-weight: bold;">SELECT NAMES TO MARK ABSENT</div>
+        <div class="mode-row">
+            <button class="mode-btn btn-absent active" id="modeAbsent" onclick="setMode('ABSENT')">MARK ABSENT</button>
+            <button class="mode-btn btn-kovil" id="modeKovil" onclick="setMode('KOVIL')">MARK KOVIL</button>
+        </div>
+
         <div id="listContainer"></div>
 
-        <button class="btn btn-gen" onclick="generateAllReports()">Generate All Reports</button>
-
-        <div id="resultArea" class="hidden">
-            <!-- 1. HK ABSTRACT -->
-            <div class="report-section">
-                <span class="report-title">1. Daily Abstract (Short)</span>
-                <textarea id="outputAbstract"></textarea>
-                <div class="button-row"><button class="btn btn-copy" onclick="copyText('outputAbstract')">Copy Abstract</button><button class="btn btn-whatsapp" onclick="shareWA('outputAbstract')">WA Share</button></div>
-            </div>
-
-            <!-- 2. DETAILED REPORT -->
-            <div class="report-section">
-                <span class="report-title">2. Detailed Report (Names with S.No)</span>
-                <textarea id="outputDetailed" style="height: 350px;"></textarea>
-                <div class="button-row"><button class="btn btn-copy" onclick="copyText('outputDetailed')">Copy Detailed</button><button class="btn btn-whatsapp" onclick="shareWA('outputDetailed')">WA Share</button></div>
-            </div>
-
-            <!-- 3. KOVIL REPORT -->
-            <div class="report-section">
-                <span class="report-title">3. Bajanai Kovil Report</span>
-                <textarea id="outputKovil"></textarea>
-                <div class="button-row"><button class="btn btn-copy" onclick="copyText('outputKovil')">Copy Kovil Report</button><button class="btn btn-whatsapp" onclick="shareWA('outputKovil')">WA Share</button></div>
-            </div>
+        <div class="report-selection">
+            <label><b>Select Report Type:</b></label>
+            <select id="reportType" style="width:100%; padding:10px; margin-top:5px; border-radius:5px;">
+                <option value="FULL">1. Generate Full Report</option>
+                <option value="ABSENT_ONLY">2. Absent List Only</option>
+                <option value="HOSTEL_ONLY">3. Hostel Report Only</option>
+            </select>
+            <button class="btn-action btn-green" onclick="generateReport()">Generate Report</button>
         </div>
+
+        <div style="margin-top: 10px;">
+            <button class="btn-action btn-whatsapp" id="shareBtn" style="display:none;" onclick="shareWhatsApp()">WhatsApp Share</button>
+            <button class="btn-action btn-blue" id="copyBtn" style="display:none;" onclick="copyText()">Copy Text</button>
+        </div>
+        <div id="resultSection" style="display:none;"><textarea id="output" readonly></textarea></div>
     </div>
 
     <div id="editView" class="hidden">
-        <h3 style="text-align:center;">Manage Names</h3>
-        <div style="text-align:center; margin-bottom:15px;">
-            <button class="btn btn-gen" style="width:45%" onclick="toggleEditView()">Save & Back</button>
-            <button class="btn btn-red" style="width:45%" onclick="resetData()">Reset Data</button>
+        <h3 style="text-align:center;">Manage List & Strength</h3>
+        <div style="display:flex; justify-content: space-between; margin-bottom:15px;">
+            <button class="btn-manage" style="background:#28a745" onclick="toggleEditView()">Save & Back</button>
+            <button class="btn-manage" style="background:#dc3545" onclick="resetData()">Reset Default</button>
         </div>
         <div id="editListContainer"></div>
     </div>
 </div>
 
 <script>
-    const kovilSpecificNames = ["P.selvi", "Muthulakshmi", "P.vasanthi"];
-
     const defaultConfig = {
-        BH2: { name: "BH-2", sStr: 30, scStr: 24, hkStr: 1, names: { supervisors: ["M.kirubakanni", "S.selvi"], sweepers: ["Akila", "Kannagi", "Durga", "Radha", "Selvi", "Ponni", "Jaya", "V.Lakshmi", "Vali", "Malliga", "Virammal", "Devki", "Kamala", "Maniyamma", "Padhmavathy", "Panjala", "Gowri", "Shobana", "Shanthi"], scavengers: ["Kasturi", "Ponnammal", "Lakshmi.N", "Lakshmi", "Sushila", "Chitra", "Muthulakshmi", "Rajakumari", "Selvi", "Vasanthi.P", "Lakshmi.M", "Muniyammal", "Mahalingam", "Malar", "Selvi.p", "Alamelu", "Yoestha", "E.Lashmi", "P.Selvi"] } },
-        OMV: { name: "Omv Hostel", sStr: 18, scStr: 18, hkStr: 1, names: { supervisors: ["Andavar"], sweepers: ["A.Bavani", "Jumuna Rani", "M.Thenmohizi", "A.Vasantha", "S.Sathya", "R.Jayabharathi", "S.Devi", "P.Rajakani", "K.Vimala", "Dhanalakshmi", "S.uma", "Pachaiyammal", "P.Rukumani", "A.Kumari", "A.Nalini", "E.Poongavanam", "T.Selvi", "S.Ramadevi"], scavengers: ["S.Ranganayaki", "R.Sundarambal", "K.Chithra", "J.Mohana", "B.Geetha", "R.Vettriselvi", "C.Panchavarnam", "S.Rose", "Poonamdevi", "K.Gandhi Mathi"] } },
-        GH: { name: "Girls Hostel", sStr: 19, scStr: 11, hkStr: 1, names: { supervisors: ["Selvi"], sweepers: ["Manjula", "Gandhi", "Ramani", "Jaya", "Nermathi", "Kanikaivel", "Mohanammal", "Madhavi", "Muniyammal", "Chandra", "Sundari", "Parameshwari"], scavengers: ["Dhivya", "Ranjitham", "Sarala", "Usha", "Savithri", "Revathi", "Vijaya", "Vasantha", "Devi", "Poongavanam (Night shift)", "Muthulakshmi (Night shift)"] } }
+        GH: { allot: 33, sections: { "SUPERVISOR": { str: 2, names: ["Sudha"] }, "OUTER SWEEPERS": { str: 5, names: ["Devagi", "Aruputham", "Manjula", "Bangaram", "Meena"] }, "SHIVASHAKTHI SWEEPERS": { str: 6, names: ["Kanaikai vel", "Lakshmi", "Ramani", "Jaya", "Niralathi", "Rathinavali"] }, "SHIVASHAKTHI SCAVENGERS": { str: 2, names: ["R.Dhivya", "Ranjitham"] }, "CHELLAMAML SWEEPERS": { str: 5, names: ["Muniyammal", "Balasundari", "Elakammal", "Bakiri", "Chanthr"] }, "CHELLAMAML SCAVENGERS": { str: 4, names: ["Savithri", "Vasantha", "Rajam", "Santhi"] } } },
+        BH2: { allot: 56, sections: { "SUPERVISOR": { str: 2, names: ["M.Kirubakanni", "S.selvi"] }, "SWEEPERS": { str: 30, names: ["Akila", "Kannagi", "Durga", "Radha", "Selvi", "Ponni", "Jaya", "V.Lakshmi", "Vali", "Malliga", "virammal", "Esakki", "Sivakanni", "Vasanthi", "Shanthi"] }, "SCAVENGERS": { str: 24, names: ["Kasturi", "Ponnammal", "Lakshmi.N", "Lakshmi", "Sushila", "Chitra", "Muthulakshmi", "Rajakumari", "Selvi", "Vasanthi.P", "Lakshmi.M", "Muniyammal", "Mahalingam", "Malar", "Selvi.p", "Alamelu"] } } },
+        OMV: { allot: 37, sections: { "SUPERVISOR": { str: 1, names: ["Andavar"] }, "SWEEPERS": { str: 18, names: ["A.Bavani", "Jumuna Rani", "M.Thenmohizi", "A.Vasantha", "S.Sathya", "R.Jayabharathi", "S.Devi", "P.Rajakani", "K.Vimala", "Dhanalakshmi", "S.uma", "Pachaiyammal", "P.Rukumani", "A.Kumari", "A.Nalini", "E.Poongavanam", "T.Selvi", "S.Ramadevi"] }, "SCAVENGERS": { str: 18, names: ["S.Ranganayaki", "R.Sundarambal", "K.Chithra", "J.Mohana", "B.Geetha", "R.Vettriselvi", "C.Panchavarnam", "S.Rose", "Poonamdevi", "K.Gandhi Mathi"] } } }
     };
 
-    let currentLoc = "BH2", appData = {}, selections = { absent: {} };
+    let currentLoc = "BH2", appData = {}, kovilData = {}, currentMode = "ABSENT";
 
     function switchLocation() {
         currentLoc = document.getElementById('locationSelect').value;
-        loadData();
-        document.getElementById('placeHeader').innerText = defaultConfig[currentLoc].name;
-        selections = { absent: {} };
-        renderAttendance();
+        document.getElementById('topBarTitle').innerText = currentLoc + " H.K report";
+        document.getElementById('placeHeader').innerText = currentLoc === 'GH' ? "Girls Hostel" : (currentLoc === 'BH2' ? "BH-2" : "Omv Hostel");
+        loadData(); renderAttendance();
     }
 
     function loadData() {
-        const key = "v37_data_" + currentLoc;
-        const saved = localStorage.getItem(key);
-        if (saved) appData = JSON.parse(saved);
-        else {
-            appData = {};
-            for (let cat in defaultConfig[currentLoc].names) 
-                appData[cat] = defaultConfig[currentLoc].names[cat].map(n => ({ name: n, hidden: false }));
+        const saved = localStorage.getItem("v11_data_" + currentLoc);
+        if (saved) {
+            appData = JSON.parse(saved);
+        } else {
+            appData = JSON.parse(JSON.stringify(defaultConfig[currentLoc].sections));
+            for(let sec in appData) {
+                appData[sec].names = appData[sec].names.map(n => ({ name: n }));
+            }
         }
-        const sel = document.getElementById('supervisorSelect');
-        sel.innerHTML = '';
-        appData.supervisors.forEach(s => { if(!s.hidden) sel.innerHTML += `<option value="${s.name}">${s.name}</option>`; });
+        kovilData = {};
+        const sel = document.getElementById('supervisorSelect'); sel.innerHTML = '';
+        appData["SUPERVISOR"].names.forEach(s => { sel.innerHTML += `<option value="${s.name}">${s.name}</option>`; });
     }
 
     function renderAttendance() {
         const cont = document.getElementById('listContainer'); cont.innerHTML = '';
-        ['supervisors', 'sweepers', 'scavengers'].forEach(cat => {
-            const str = (cat === 'supervisors') ? defaultConfig[currentLoc].hkStr : (cat === 'sweepers' ? defaultConfig[currentLoc].sStr : defaultConfig[currentLoc].scStr);
-            let html = `<div class="category-title"><span>${cat.toUpperCase()}</span> <span>Str: ${str}</span></div><div class="worker-list">`;
-            
-            let visibleIdx = 1;
-            appData[cat].forEach((item, idx) => {
-                if(item.hidden) return;
-                const key = `${cat}-${idx}`;
-                const isA = selections.absent[key] ? 'is-absent' : '';
-                html += `<div class="worker-item ${isA}" onclick="toggleAbsent('${cat}', ${idx})">
-                            <input type="checkbox" ${isA ? 'checked' : ''}>
-                            <span class="sno-badge">${visibleIdx}.</span> ${item.name}
-                         </div>`;
-                visibleIdx++;
+        for (let sec in appData) {
+            if (sec === "SUPERVISOR") continue;
+            let html = `<div class="category-bar"><span>${sec}</span> <span class="str-count">Str: ${appData[sec].str}</span></div>`;
+            appData[sec].names.forEach((item, idx) => {
+                const isK = kovilData[sec + '-' + idx] ? 'is-kovil' : '';
+                html += `<div class="worker-item ${isK}" onclick="handleItemClick('${sec}', ${idx})"><input type="checkbox" id="chk-${sec}-${idx}" onclick="event.stopPropagation()"><span>${item.name}</span></div>`;
             });
-            cont.innerHTML += html + `</div>`;
-        });
+            cont.innerHTML += html;
+        }
     }
 
-    function toggleAbsent(cat, idx) {
-        const key = `${cat}-${idx}`;
-        selections.absent[key] = !selections.absent[key];
-        renderAttendance();
+    function handleItemClick(sec, idx) {
+        if(currentMode === "ABSENT") document.getElementById(`chk-${sec}-${idx}`).checked = !document.getElementById(`chk-${sec}-${idx}`).checked;
+        else { kovilData[sec + '-' + idx] = !kovilData[sec + '-' + idx]; renderAttendance(); }
     }
 
-    function generateAllReports() {
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeAbsent').classList.toggle('active', mode === 'ABSENT');
+        document.getElementById('modeKovil').classList.toggle('active', mode === 'KOVIL');
+    }
+
+    function generateReport() {
+        const type = document.getElementById('reportType').value;
         const date = new Date().toLocaleDateString('en-GB');
-        const loc = defaultConfig[currentLoc];
+        const day = new Date().toLocaleDateString('en-GB', { weekday: 'long' });
         const supName = document.getElementById('supervisorSelect').value;
-        
-        let abstract = `Daily House keeping Report ${loc.name}\n${date}\n\n`;
-        let detailed = `Daily H.K Attendance Report\nPlace: ${loc.name}\nDate: ${date}\n==========================\n`;
-        
-        const catMap = [
-            {l: "Sweeper", k: "sweepers", s: loc.sStr}, 
-            {l: "Scavenger", k: "scavengers", s: loc.scStr}, 
-            {l: "Hk supervisor", k: "supervisors", s: loc.hkStr}
-        ];
+        let out = "";
 
-        let kovS = 0, kovSc = 0, kovPList = [], kovAList = [];
+        let totalPresent = 0, totalAbsent = 0, totalAllot = 0;
+        let stats = {};
 
-        catMap.forEach(c => {
-            let pList = [], aList = [];
-            let visCount = 0;
-
-            appData[c.k].forEach((item, i) => {
-                if(item.hidden) return;
-                visCount++;
-                const key = `${c.k}-${i}`;
-                const isSpec = kovilSpecificNames.some(kn => item.name.toLowerCase().includes(kn.toLowerCase()));
-
-                if(selections.absent[key]) {
-                    aList.push(item.name);
-                    if(isSpec) kovAList.push(item.name);
+        for (let sec in appData) {
+            totalAllot += parseInt(appData[sec].str);
+            if (sec === "SUPERVISOR") continue;
+            stats[sec] = { abs: [], pres: [] };
+            appData[sec].names.forEach((item, idx) => {
+                const isA = document.getElementById(`chk-${sec}-${idx}`).checked;
+                const isK = kovilData[sec + '-' + idx];
+                if (isA || isK) {
+                    stats[sec].abs.push(item.name + (isK ? " (Kovil)" : ""));
+                    totalAbsent++;
                 } else {
-                    pList.push(item.name);
-                    if(isSpec) {
-                        if(c.k === 'sweepers') kovS++;
-                        if(c.k === 'scavengers') kovSc++;
-                        kovPList.push(item.name);
-                    }
+                    stats[sec].pres.push(item.name);
+                    totalPresent++;
                 }
             });
+        }
+        
+        // Final Allot for BH2/OMV includes night shift if GH
+        if(currentLoc === 'GH') totalAllot += 2; // Fixed night shift
 
-            let vacant = c.s - visCount;
-
-            abstract += `${c.l} Allowed Strength: ${c.s}\n${c.l} Present: ${pList.length.toString().padStart(2,'0')}\n${c.l} Absent: ${aList.length.toString().padStart(2,'0')}\n${c.l} Vacant: ${vacant.toString().padStart(2,'0')}\n\n`;
-
-            detailed += `\n${c.k.toUpperCase()}\nTotal Strength: ${c.s}\nPresent: ${pList.length}\nAbsent: ${aList.length}\nVacant: ${vacant}\n`;
-            detailed += `--- Present List ---\n${pList.map((n, idx) => (idx+1)+'. '+n).join('\n') || '(Nil)'}\n`;
-            detailed += `--- Absent List ---\n${aList.map((n, idx) => (idx+1)+'. '+n).join('\n') || '(Nil)'}\n`;
-            detailed += `--------------------------\n`;
-        });
-
-        detailed += `\nPrepared by: ${supName}`;
-
-        let kovilReport = `Bajanai Kovil report\n\n${date}\nSweeper -${kovS.toString().padStart(2,'0')}\nScavenger-${kovSc.toString().padStart(2,'0')}\n${kovPList.map((n, i) => (i+1)+'. '+n).join('\n') || '(Nil)'}`;
-        if(kovAList.length > 0) {
-            kovilReport += `\n\n--- Absent ---\n${kovAList.map((n, i) => (i+1)+'. '+n).join('\n')}`;
+        if (type === "FULL") {
+            out = `Daily H.K Attendance Report\nPlace: ${currentLoc}\nDate: ${date}\n==========================\n`;
+            for (let sec in appData) {
+                let absArr = [], presArr = [];
+                if (sec === "SUPERVISOR") {
+                    presArr = [supName];
+                } else {
+                    absArr = stats[sec].abs; presArr = stats[sec].pres;
+                }
+                let s = appData[sec];
+                let vacant = parseInt(s.str) - (absArr.length + presArr.length);
+                out += `\n${sec}\nTotal Strength: ${s.str}\nPresent: ${presArr.length}\nAbsent: ${absArr.length}\nVacant: ${vacant < 0 ? 0 : vacant}\n--- Present List ---\n${presArr.map((n,i)=>`${i+1}. ${n}`).join('\n') || "(Nil)"}\n--- Absent List ---\n${absArr.map((n,i)=>`${i+1}. ${n}`).join('\n') || "(Nil)"}\n--------------------------\n`;
+            }
+        } else if (type === "ABSENT_ONLY") {
+            out = `Good morning sir Today \n${currentLoc} report\nDate :${date} (${day})\n\n`;
+            for (let sec in stats) {
+                let s = stats[sec];
+                let vacant = parseInt(appData[sec].str) - (s.pres.length + s.abs.length);
+                out += `*${sec}* 👇🏻\nStrength: ${appData[sec].str.toString().padStart(2, '0')}\nPresent: ${s.pres.length.toString().padStart(2, '0')}\nAbsent: ${s.abs.length.toString().padStart(2, '0')}\nVacant: ${vacant < 0 ? 0 : vacant.toString().padStart(2, '0')}\n_Absent list_\n${s.abs.join('\n') || "Nil"}\n\n`;
+            }
+            if(currentLoc === 'GH') out += `Night shift-02\n*Vacant- 02*\n\n`;
+            out += `Allotted numbers-${totalAllot}\nPresent-${totalPresent + 1}\nAbsent -${totalAbsent}\nVacant  -${totalAllot - (totalPresent + 1 + totalAbsent)}\n\nThank you\nPrepared by: ${supName}`;
+        } else {
+            out = `Daily House keeping Report\n${currentLoc}\n${date}\n\n`;
+            let swAbs = 0, swPres = 0, swStr = 0, scAbs = 0, scPres = 0, scStr = 0;
+            for(let sec in appData) {
+                if(sec === "SUPERVISOR") continue;
+                if(sec.includes("SCAVENGER")) { 
+                    scAbs += stats[sec].abs.length; scPres += stats[sec].pres.length; scStr += parseInt(appData[sec].str);
+                } else { 
+                    swAbs += stats[sec].abs.length; swPres += stats[sec].pres.length; swStr += parseInt(appData[sec].str);
+                }
+            }
+            out += `Sweeper Allowed Strength: ${swStr}\nSweeper Present: ${swPres}\nSweeper Absent: ${swAbs}\nSweeper Vacant: ${swStr - (swPres+swAbs)}\n\n`;
+            out += `Scavenger Allowed Strength: ${scStr}\nScavenger Present: ${scPres}\nScavenger Absent: ${scAbs}\nScavenger Vacant: ${scStr - (scPres+scAbs)}\n\n`;
+            if(currentLoc === 'GH') out += `Night shift allowed strength -02\n*Vacant- 02*\n\n`;
+            out += `Alloted number\nTotal - ${totalAllot}\nPresent - ${totalPresent + 1}\nAbsent - ${totalAbsent}\nVacant- ${totalAllot - (totalPresent + 1 + totalAbsent)}\n\nThanks you\nPrepared by: ${supName}`;
         }
 
-        document.getElementById('resultArea').classList.remove('hidden');
-        document.getElementById('outputAbstract').value = abstract;
-        document.getElementById('outputDetailed').value = detailed;
-        document.getElementById('outputKovil').value = kovilReport;
+        document.getElementById('resultSection').style.display = 'block';
+        document.getElementById('output').value = out;
+        document.getElementById('shareBtn').style.display = 'block'; document.getElementById('copyBtn').style.display = 'block';
         window.scrollTo(0, document.body.scrollHeight);
     }
 
     function toggleEditView() {
-        const isEdit = document.getElementById('attendanceView').style.display === 'none';
-        document.getElementById('attendanceView').style.display = isEdit ? 'block' : 'none';
+        const isEdit = document.getElementById('attendanceView').classList.contains('hidden');
+        document.getElementById('attendanceView').classList.toggle('hidden', !isEdit);
         document.getElementById('editView').classList.toggle('hidden', isEdit);
-        document.getElementById('editToggleBtn').innerText = isEdit ? 'Manage Names' : 'Back';
-        if (!isEdit) renderEdit(); else loadData();
+        if (!isEdit) renderEdit(); else { loadData(); renderAttendance(); }
     }
 
     function renderEdit() {
         const cont = document.getElementById('editListContainer'); cont.innerHTML = '';
-        ['supervisors', 'sweepers', 'scavengers'].forEach(cat => {
-            let html = `<div class="category-title" style="background:#666;">${cat.toUpperCase()}</div>
-            <div style="display:flex; gap:5px; margin:10px 0;"><input type="text" id="new-${cat}" style="flex:1; padding:8px;" placeholder="New Name"><button class="btn btn-blue" style="width:auto; margin:0;" onclick="addNew('${cat}')">Add</button></div>`;
-            appData[cat].forEach((item, idx) => {
-                html += `<div class="edit-row"><span style="${item.hidden ? 'color:#ccc; text-decoration:line-through;' : ''}">${idx+1}. ${item.name}</span>
-                <div><button class="btn" style="width:auto; padding:5px 10px; margin:0; background:${item.hidden ? '#28a745' : '#ffc107'}; color:#000;" onclick="toggleHide('${cat}', ${idx})">${item.hidden ? 'Show' : 'Hide'}</button>
-                <button class="btn btn-red" style="width:auto; padding:5px 10px; margin:0 0 0 5px;" onclick="delName('${cat}', ${idx})">Del</button></div></div>`;
+        for (let sec in appData) {
+            let html = `<div class="category-bar" style="background:#666;">${sec}</div>
+            <div class="strength-edit-box">
+                Allotted Strength: <input type="number" value="${appData[sec].str}" onchange="updateStr('${sec}', this.value)">
+            </div>
+            <div class="add-box"><input type="text" id="add-${sec}" placeholder="New Name..."><button class="btn-manage" style="background:#007bff" onclick="addNewName('${sec}')">Add</button></div>`;
+            appData[sec].names.forEach((item, idx) => {
+                html += `<div class="edit-item"><span>${item.name}</span><div><button class="btn-manage" style="background:#ffc107; color:black; margin-right:5px;" onclick="editName('${sec}', ${idx})">Edit</button><button class="btn-manage" style="background:#dc3545" onclick="deleteName('${sec}', ${idx})">Del</button></div></div>`;
             });
             cont.innerHTML += html;
-        });
+        }
     }
 
-    function addNew(cat) { const val = document.getElementById('new-'+cat).value.trim(); if(val) { appData[cat].push({name: val, hidden: false}); save(); renderEdit(); } }
-    function toggleHide(cat, idx) { appData[cat][idx].hidden = !appData[cat][idx].hidden; save(); renderEdit(); }
-    function delName(cat, idx) { if(confirm("Delete?")) { appData[cat].splice(idx,1); save(); renderEdit(); } }
-    function save() { localStorage.setItem("v37_data_" + currentLoc, JSON.stringify(appData)); }
-    function resetData() { if(confirm("Reset Everything?")) { localStorage.removeItem("v37_data_" + currentLoc); loadData(); renderEdit(); } }
-    function copyText(id) { const el = document.getElementById(id); el.select(); document.execCommand('copy'); alert("Copied!"); }
-    function shareWA(id) { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(document.getElementById(id).value)}`); }
+    function updateStr(sec, val) { appData[sec].str = val; save(); }
+    function addNewName(sec) { const val = document.getElementById('add-'+sec).value.trim(); if(val) { appData[sec].names.push({name: val}); save(); renderEdit(); } }
+    function editName(sec, idx) { const n = prompt("New name:", appData[sec].names[idx].name); if(n) { appData[sec].names[idx].name = n; save(); renderEdit(); } }
+    function deleteName(sec, idx) { if(confirm("Delete?")) { appData[sec].names.splice(idx, 1); save(); renderEdit(); } }
+    function save() { localStorage.setItem("v11_data_"+currentLoc, JSON.stringify(appData)); }
+    function resetData() { if(confirm("Reset?")) { localStorage.removeItem("v11_data_"+currentLoc); loadData(); renderEdit(); } }
+    function copyText() { const t = document.getElementById('output'); t.select(); document.execCommand('copy'); alert("Copied!"); }
+    function shareWhatsApp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(document.getElementById('output').value)}`); }
 
     switchLocation();
 </script>
